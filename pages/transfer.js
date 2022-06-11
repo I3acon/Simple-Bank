@@ -18,6 +18,7 @@ import { ethers } from "ethers";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Web3 from "web3";
 
 export default function App() {
   const { address } = useAccounts();
@@ -37,6 +38,36 @@ export default function App() {
   const handleTransfer = async () => {
     setLoading(true);
     sendTransfer();
+  };
+
+  const handleChangeTransferAmount = (e) => {
+    setAmount(e.target.value);
+    if (parseFloat(e.target.value) > parseFloat(Balance / 1e18)) {
+      toast.error("You don't have enough Bank Balance");
+      setAmount("0");
+    }
+  };
+
+  const handleSetMax = () => {
+    setAmount(Balance / 1e18);
+  };
+
+  const isValidAddress = (adr) => {
+    try {
+      const web3 = new Web3();
+      web3.utils.toChecksumAddress(adr);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const handleChangeTo = (e) => {
+    setTo(e.target.value);
+    if (!isValidAddress(e.target.value)) {
+      toast.error("Invalid address");
+      setTo("0x0");
+    }
   };
 
   useEffect(() => {
@@ -62,7 +93,7 @@ export default function App() {
               bordered
               placeholder="0x0"
               value={to == "0x0" ? "" : to}
-              onChange={(e) => setTo(e.target.value)}
+              onChange={handleChangeTo}
             />
             <Spacer y={0.5} />
             <Input
@@ -73,8 +104,21 @@ export default function App() {
               bordered
               placeholder="0.00"
               value={amount == 0 ? "" : amount}
+              contentRightStyling={false}
+              contentRight={
+                <Button
+                  flat
+                  color="primary"
+                  size="xs"
+                  auto
+                  rounded
+                  onClick={handleSetMax}
+                >
+                  Max
+                </Button>
+              }
               min={0}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={handleChangeTransferAmount}
             />
             <Spacer y={0.5} />
             <Button

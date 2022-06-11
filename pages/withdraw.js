@@ -35,6 +35,18 @@ export default function App() {
     sendWithdraw();
   };
 
+  const handleChangeWithdrawAmount = (e) => {
+    setAmount(e.target.value);
+    if (parseFloat(e.target.value) > parseFloat(Balance / 1e18)) {
+      toast.error("You don't have enough Bank Balance");
+      setAmount("0");
+    }
+  };
+
+  const handleSetMax = () => {
+    setAmount(Balance / 1e18);
+  };
+
   useEffect(() => {
     withdraw?.wait().then((resp) => {
       toast.success("Withdraw Successful");
@@ -63,7 +75,20 @@ export default function App() {
               placeholder="0.00"
               value={amount == 0 ? "" : amount}
               min={0}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={handleChangeWithdrawAmount}
+              contentRightStyling={false}
+              contentRight={
+                <Button
+                  flat
+                  color="primary"
+                  size="xs"
+                  auto
+                  rounded
+                  onClick={handleSetMax}
+                >
+                  Max
+                </Button>
+              }
             />
             <Spacer y={0.5} />
             <Button

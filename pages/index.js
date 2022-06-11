@@ -30,8 +30,6 @@ export default function App() {
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  console.log(DAIBalance);
-
   const { data: approve, write: sendApprove } = useApprove(
     Address.contracts.bank.address,
     amount == 0
@@ -47,6 +45,18 @@ export default function App() {
   const handleApprove = async () => {
     setLoading(true);
     sendApprove();
+  };
+
+  const handleChangeDeposit = (e) => {
+    setAmount(e.target.value);
+    if (parseFloat(e.target.value) > parseFloat(DAIBalance / 1e18)) {
+      toast.error("You don't have enough DAI");
+      setAmount(0);
+    }
+  };
+
+  const handleSetMax = () => {
+    setAmount(DAIBalance / 1e18);
   };
 
   useEffect(() => {
@@ -83,7 +93,20 @@ export default function App() {
               placeholder="0.00"
               value={amount == 0 ? "" : amount}
               min={0}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={handleChangeDeposit}
+              contentRightStyling={false}
+              contentRight={
+                <Button
+                  flat
+                  color="primary"
+                  size="xs"
+                  auto
+                  rounded
+                  onClick={handleSetMax}
+                >
+                  Max
+                </Button>
+              }
             />
             <Spacer y={0.5} />
             <Button
